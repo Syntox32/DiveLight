@@ -1,0 +1,11 @@
+
+#ifndef DIVELIGHT_VISUALIZER_HPP
+#define DIVELIGHT_VISUALIZER_HPP
+
+
+class Visualizer {
+
+};
+
+
+#endif //DIVELIGHT_VISUALIZER_HPP
