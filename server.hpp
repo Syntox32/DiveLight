@@ -4,7 +4,8 @@
 
 #include "config.hpp"
 
-class DiveServer {
+class DiveServer
+{
 public:
     DiveServer();
     void begin();

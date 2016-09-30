@@ -8,7 +8,7 @@ DiveClient::DiveClient()
 
     // TODO: Implement windows loopback streaming
     // init the stream if we use file stuff
-    m_stream = new DiveStream();
+    //m_stream = new DiveStream();
 
     m_fft = new DiveFFT(FFTSize::FFT2048);
     m_dataIn = new kiss_fft_scalar[m_fft->getFFTSize()];
@@ -22,55 +22,54 @@ DiveClient::DiveClient()
     m_magBuffLen = m_fft->getOutDataCount();
     m_magBuff = new float[m_fft->getOutDataCount()];
     m_ampBuff = new float[m_fft->getOutDataCount()];
-
-    m_renderer = new ColumnRenderer(20);
-    m_renderer->beginLoop();
 }
 
-bool stringContains(const std::string& str, const std::string& contains)
+void DiveClient::init()
 {
-    return (size_t)str.find(contains) != std::string::npos;
+    using namespace std::placeholders;
+
+#ifdef _WIN32
+   //std::string inPath = "\"D:\\Library\\Music\\Soundcloud\\Ambient\\Trentemoller - Miss You - Copy.wav\"";
+    std::string inPath = "\"D:\\Library\\Music\\Freestylers - Cracks Ft Belle Humble Flux Pavilion Remix.mp3\"";
+#elif __linux__
+    std::string inPath = "/home/syn/Dropbox/Dev/Alarm/music/higher-love.wav-edit.wav";
+#endif
+
+    std::cout << "Audio path: \n";
+    //std::getline(std::cin, inPath);
+
+    unsigned int fps = 60;
+    m_ledClient = new LEDClient(fps, m_lock);
+    m_ledClient->init();
+    //m_ledClient->send();
+
+    DataCallback callback = std::bind(&DiveClient::step, this, _1, _2);
+    m_soundInput = new SoundInput(callback);
+
+    m_soundInput->setFile(inPath);
+    m_soundInput->begin();
+
+    m_renderer = new ColumnRenderer(30, m_lock);
+    m_renderer->setDataPointer(m_magBuff, m_soundInput->getSampleRate(), m_fft->getOutDataCount(), m_fft->getFFTSize());
+    m_renderer->attachLeds(m_ledClient);
+    m_renderer->loop();
+
+    /*
+    while (m_soundInput->isRunning())
+    {
+        sf::sleep(sf::seconds(0.1f));
+    }
+    */
 }
 
-std::string prepareTrack(const std::string& path)
-{
-    std::string resPath = path;
-    if (stringContains(resPath, "\""))
-    {
-        resPath.erase(
-                std::remove(resPath.begin(), resPath.end(), '\"'),
-                resPath.end()
-        );
-    }
-
-    // Convert the file to .wav using ffmpeg, if it's an mp3.
-    if (stringContains(path, ".mp3"))
-    {
-        std::string cmd = "ffmpeg -i \"" + resPath + "\" \"" + resPath+ ".wav\"";
-        system(cmd.c_str()); // TODO: fix getting unicode error with this one
-        std::cout << "Converted mp3 to wav." << std::endl;
-        resPath += ".wav";
-    }
-    else
-    {
-        std::cout << "Didn't detect file as MP3; assuming WAV, OGG or FLAC." << std::endl;
-    }
-
-    return resPath;
-}
-
-/*
-void step(int i, int k) {
-    std::cout << "shit" << std::endl;
-}
-*/
-
-void DiveClient::step(int sampleSize, int currentSample)
+void DiveClient::step(unsigned int sampleSize, unsigned int currentSample)
 {
     // TODO: Handle edge cases with lower samples sizes
-    const std::vector<sf::Int16>& samples = m_stream->getSamples();
-    currentSample -= sampleSize;
+    //const std::vector<sf::Int16>& samples = m_stream->getSamples();
+    //currentSample -= sampleSize;
+    //const std::vector<uint16_t>& samples = m_soundInput->getSampleData();
 
+    /*
     // normalize the short values of the 2 channel audio and
     // add it to the inData array
     for (int i = 0; i < sampleSize; i += 2) {
@@ -85,12 +84,14 @@ void DiveClient::step(int sampleSize, int currentSample)
         //std::cout << std::fixed;
         //std::cout << m_intermediate[i / 2] << std::endl;
     }
-
+ */
+/*
     // attempt to do zero padding
     int remainder = m_fft->getFFTSize() - (sampleSize / 2);
     for (int j = (sampleSize / 2); j < m_fft->getFFTSize(); j++) {
         m_dataIn[j] = 0.0f;
     }
+    */
 
     // TODO: Do zero padding when sampleSize is not equal to FFT size
     //int remainder = (m_fft->getFFTSize() / 2) - (sampleSize / 2);
@@ -102,8 +103,14 @@ void DiveClient::step(int sampleSize, int currentSample)
     //    }
     //}
 
+    const std::vector<Sample>& samples = m_soundInput->getSampleData();
+    for (std::size_t i = 0; i < samples.size(); i++)
+    {
+        m_dataIn[i] = (float) samples[i];
+    }
+
     // TODO: Window function selection
-    m_fft->windowHann();
+    m_fft->windowBlackman();
     // perform fft
     m_fft->doFFT();
 
@@ -118,25 +125,33 @@ void DiveClient::step(int sampleSize, int currentSample)
         amp = (float)sqrt(m_dataOut[k].r * m_dataOut[k].r);
         // TODO: Check if 'amp' is not 'mag'
         m_ampBuff[k] = amp;
+
+        std::lock_guard<std::mutex> lock_guard(m_lock);
         // TODO: Implement other scaling methods (lin, log, custom)
         mag = (float)(20.0f * log10(amp));
+        //mag = (float)(4.0f * sqrt(amp));
+        if (mag < 0.0f) mag = 0.0f;
         m_magBuff[k] = mag;
+
+        //std::cout << amp << std::endl;
     }
 
-    m_renderer->setData(m_magBuff);
+    //nt lmao = m_renderer->getInt();
+    //m_renderer->setShit(nullptr);
 
-    //float amp = sqrt(m_dataOut[12].i * m_dataOut[12].i + m_dataOut[12].r * m_dataOut[12].r);
-    //float mag = 20.0f * log10(amp);
-    //std::cout << "mag: " << mag << std::endl;
+    //float ampa = sqrt(m_dataOut[12].i * m_dataOut[12].i + m_dataOut[12].r * m_dataOut[12].r);
+    //float maga = 20.0f * log10(ampa);
+    //std::cout << "mag: " << maga << std::endl;
 }
 
+/*
 void DiveClient::begin()
 {
     std::string inPath;
     std::cout << "Audio path: \n";
     std::getline(std::cin, inPath);
 
-    inPath = prepareTrack(inPath);
+    inPath = ""; //prepareTrack(inPath);
 
     // TODO: Put this code into a LoadFromFile function
     // Load the file into the stream and play it.
@@ -159,9 +174,9 @@ void DiveClient::begin()
         exit(1);
     }
 
-    m_stream->load(soundBuffer, m_channelCount * m_fft->getFFTSize(),
-                   std::bind(&DiveClient::step, this,
-                             std::placeholders::_1, std::placeholders::_2));
+    //m_stream->load(soundBuffer, m_channelCount * m_fft->getFFTSize(),
+     //              std::bind(&DiveClient::step, this,
+      //                       std::placeholders::_1, std::placeholders::_2));
     m_stream->play();
 
     while (m_stream->getStatus() == DiveStream::Playing)
@@ -169,3 +184,4 @@ void DiveClient::begin()
         sf::sleep(sf::seconds(0.1f));
     }
 }
+ */

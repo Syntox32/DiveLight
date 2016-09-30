@@ -1,10 +1,12 @@
 
 #include "server.hpp"
 
-DiveServer::DiveServer() {
+DiveServer::DiveServer()
+{
     std::cout << "Starting DiveServer..." << std::endl;
 }
 
-void DiveServer::begin() {
+void DiveServer::begin()
+{
 
 }

@@ -7,14 +7,17 @@
 #include "SFML/Audio.hpp"
 #include "fft.hpp"
 
+typedef std::function<void(unsigned int, unsigned int)> DataCallback;
+
 class DiveStream : public sf::SoundStream
 {
 public:
-    void load(const sf::SoundBuffer&, int, std::function<void(int, int)>);
+    void load(const sf::SoundBuffer&, int, DataCallback&);
 
     const std::vector<sf::Int16>& getSamples() const { return m_samples; }
     const std::size_t& currentSample() const         { return m_currentSample; }
-    const int samplesToStream() const                { return m_samplesToStream; }
+    const size_t samplesToStream() const             { return m_samplesToStream; }
+    const size_t currentSampleCount() const          { return m_currentSampleCount; }
 
 private:
     virtual bool onGetData(Chunk&);
@@ -22,8 +25,9 @@ private:
 
     std::vector<sf::Int16> m_samples;
     std::size_t            m_currentSample;
-    int                    m_samplesToStream;
-    std::function<void(int, int)> m_callback;
+    size_t                 m_samplesToStream;
+    size_t                 m_currentSampleCount;
+    DataCallback           m_callback;
 };
 
 #endif //DIVELIGHT_DIVESTREAM_H

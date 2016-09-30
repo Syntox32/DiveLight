@@ -15,12 +15,20 @@
 
 #include "config.hpp"
 #include "fft.hpp"
+#include "input.hpp"
+#include  <kiss_fft.h>
+#include "stream.hpp"
+#include "renderer.hpp"
+#include "columnrenderer.hpp"
+#include "easywsclient.hpp"
+#include "ledclient.hpp"
 
 #include <locale>
 #include <codecvt>
 
 #include <string>
 #include <cmath>
+#include <math.h>
 #include <climits>
 
 #include "SFML/System.hpp"
@@ -28,34 +36,25 @@
 #include "SFML/Graphics.hpp"
 #include "SFML/Audio.hpp"
 
-#include <kiss_fft.h>
-#include "stream.hpp"
-#include "renderer.hpp"
-#include "columnrenderer.hpp"
-
 class DiveClient
 {
 public:
     DiveClient();
-    void begin();
-    void step(int sampleSize, int currentSample);
+    void init();
+
 private:
-    DiveFFT*    m_fft;
-    DiveStream* m_stream;
-    kiss_fft_scalar* m_dataIn;
-    kiss_fft_cpx*    m_dataOut;
-    float*       m_ampBuff;
-    float*       m_magBuff;
+    void step(unsigned int sampleSize, unsigned int currentSample);
+
+    LEDClient  *m_ledClient;
+    SoundInput *m_soundInput;
+    DiveFFT    *m_fft;
+    kiss_fft_scalar *m_dataIn;
+    kiss_fft_cpx    *m_dataOut;
+    float       *m_ampBuff;
+    float       *m_magBuff;
     unsigned int m_magBuffLen;
-
-    unsigned int m_channelCount;
-    unsigned int m_sampleRate;
-    uint64_t     m_sampleCount;
-
-    IRenderer*   m_renderer;
-
-    sf::RenderWindow *m_window;
-    std::vector<sf::RectangleShape>* m_rects;
+    ColumnRenderer* m_renderer;
+    std::mutex m_lock;
 };
 
 

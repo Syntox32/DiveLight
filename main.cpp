@@ -58,18 +58,16 @@ int main(int argc, char* argv[]) {
     }
 
     char choice = (char)std::tolower((unsigned  char)argv[1][0]);
-    switch (choice) {
-        case 's': {
-            DiveServer *s = new DiveServer();
-            s->begin();
-            delete s;
-            break;
-        }
+    switch (choice)
+    {
         case 'c': {
             DiveClient *c = new DiveClient();
-            c->begin();
+            c->init();
             delete c;
             break;
+        }
+        case 's': {
+            std::cerr << "server not supported" << std::endl; break;
         }
         default:
             printHelp();

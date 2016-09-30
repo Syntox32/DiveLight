@@ -13,18 +13,16 @@
 
 class IRenderer {
 public:
-    IRenderer();
+    IRenderer(std::mutex& lock);
 
-    virtual void setData(float* data) = 0;
-    virtual void beginLoop();
+    virtual void setData() = 0;
     virtual void render();
-    std::mutex m_renderLock;
-private:
-protected:
     void loop();
+
+protected:
     sf::RenderWindow* m_window;
     std::vector<sf::RectangleShape>* m_rects;
-    std::thread m_tRender;
+    std::mutex& m_lock;
 };
 
 

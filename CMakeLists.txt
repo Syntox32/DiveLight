@@ -15,7 +15,8 @@ endif()
 
 if (UNIX)
     message(WARNING "Detected UNIX.")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+    # use the pthread flag when compiling for linux
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -lpthread -pthread")
 endif()
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -28,17 +29,34 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "bin/")
 
 include_directories("${PROJECT_BINARY_DIR}")
 
+
 # Add KissFFT includes and sources
 include_directories("${CMAKE_SOURCE_DIR}/external/kissfft")
 include_directories("${CMAKE_SOURCE_DIR}/external/kissfft/tools")
-
 set(KISSFFT_SOURCE
         ${CMAKE_SOURCE_DIR}/external/kissfft/kiss_fft.c
         ${CMAKE_SOURCE_DIR}/external/kissfft/tools/kiss_fftr.c)
 
+
+# Add EasyWSClient
+include_directories("${CMAKE_SOURCE_DIR}/external/easywsclient")
+set(WSCLIENT_SOURCE
+        ${CMAKE_SOURCE_DIR}/external/easywsclient/easywsclient.cpp
+        ${CMAKE_SOURCE_DIR}/external/easywsclient/easywsclient.hpp)
+
+
 set(EXECUTABLE_NAME "DiveLight")
-set(SOURCE_FILES main.cpp config.hpp client.cpp client.hpp server.cpp server.hpp stream.cpp stream.hpp fft.cpp fft.hpp utils.hpp renderer.cpp renderer.hpp columnrenderer.cpp columnrenderer.hpp visualizer.cpp visualizer.hpp input.cpp input.hpp)
-add_executable(${EXECUTABLE_NAME} ${SOURCE_FILES} ${KISSFFT_SOURCE})
+set(SOURCE_FILES main.cpp config.hpp client.cpp client.hpp server.cpp server.hpp stream.cpp stream.hpp fft.cpp fft.hpp utils.hpp renderer.cpp renderer.hpp columnrenderer.cpp columnrenderer.hpp visualizer.cpp visualizer.hpp input.cpp input.hpp ledclient.cpp ledclient.hpp)
+# add sources from directory and from external directories
+add_executable(${EXECUTABLE_NAME} ${SOURCE_FILES} ${KISSFFT_SOURCE} ${WSCLIENT_SOURCE})
+
+
+# Link win sockets when on windows
+# Used by easywsclient
+if (WIN32)
+    target_link_libraries(${EXECUTABLE_NAME} wsock32 ws2_32)
+endif()
+
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake_modules" ${CMAKE_MODULE_PATH})
 #Find any version 2.X of SFML
@@ -51,10 +69,3 @@ endif()
 
 # Install target
 install(TARGETS ${EXECUTABLE_NAME} DESTINATION ${DiveLight_BINARY_DIR})
-
-# CPack packaging
-#include(InstallRequiredSystemLibraries)
-#set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/COPYING")
-#set(CPACK_PACKAGE_VERSION_MAJOR "${myproject_VERSION_MAJOR}")
-#set(CPACK_PACKAGE_VERSION_MINOR "${myproject_VERSION_MINOR}")
-#include(CPack)

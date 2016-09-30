@@ -2,6 +2,8 @@
 #ifndef DIVELIGHT_UTILS_H
 #define DIVELIGHT_UTILS_H
 
+#include <string>
+
 class Utils {
 public:
     ///
@@ -14,14 +16,25 @@ public:
         return (float)(idx * (samplingRate / fftSize / 2.0f));
     }
 
+
     ///
     /// \param freq      Frequenzy in Hz
     /// \param samples   Sampling rate
     /// \param nFFT      FFT Size
     /// \return Index of frequency
-    static inline int freqToIndex(double freq, double samplingRate, int fftSize)
+    static inline unsigned int freqToIndex(double freq, double samplingRate, int fftSize)
     {
-        return (int)(freq / (samplingRate / fftSize / 2.0f));
+        return (unsigned int)(freq / (samplingRate / fftSize / 2.0f));
+    }
+
+    static double inline map(double x, double inMin, double inMax, double outMin, double outMax) {
+        return (x - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
+    }
+
+
+    static inline bool stringContains(const std::string& str, const std::string& contains)
+    {
+        return (size_t)str.find(contains) != std::string::npos;
     }
 };
 
