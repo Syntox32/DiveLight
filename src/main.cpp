@@ -4,75 +4,31 @@
  *
  *  Anders Milje (github.com/syntox32) 2016 - MIT Licence.
  *
+ *  repo: https://github.com/Syntox32/DiveLight
  *
- * -- The plan --
- *
- * Two parts: server and a client. Client being your computer, and server being a raspberry pi (2 or 3).
- *
- * Client:
- *  1. Establish connection to server (using web-sockets).
- *  2. User requests a song.
- *  3. File is converted/downloaded.
- *  4. Begin loop:
- *      1. Do FFT and beat-detection. (Heavy calculations).
- *      2. Send LED-state updates to server (RPi).
- *
- *  Server:
- *   1. Begin web-socket loop:
- *      1. Wait for connection.
- *      2. Receive data (configs, data, etc..)
- *      3. Initialize thread-safe LED state object.
- *      4. Start LED update thread
- *   2. Begin LED thread (running at 60 to 120 fps):
- *      1. Access LED state
- *      2. Update if needed
- *      3. Send update to RPI GPIO
- *
- *
- * -- The Libraries --
+ * -- Plan
  *
  *  The goal is for this to work cross-platform.
  *
- *  Shared:
- *   - Web-sockets:         https://github.com/zaphoyd/websocketpp
+ * -- Libraries
  *
- *  Client:
- *   - FFT Library:         https://github.com/FFTW/fftw3
+ *  Server(C++):
+ *      - WebSocket client - https://github.com/dhbaird/easywsclient
+ *      - Fourier transform - https://github.com/itdaniher/kissfft
+ *      - (might use boost if I give up on string and file manipulation)
  *
- *  Server (RPi):
- *   - LED Interaction:     https://github.com/jgarff/rpi_ws281x
+ *  Client(Python >=3.5.x):
+ *      - LED interaction - https://github.com/jazzycamel/ws28128-rpi
+ *      - websockes
  *
  * */
 
-#include <iostream>
 #include "../include/client.hpp"
-#include "../include/server.hpp"
 
-void printHelp() {
-    std::cout << "Please launch as either 'dive.exe server' or 'dive.exe client'" << std::endl;
-}
-
-int main(int argc, char* argv[]) {
-    if (argc != 2) {
-        printHelp();
-    }
-
-    char choice = (char)std::tolower((unsigned  char)argv[1][0]);
-    switch (choice)
-    {
-        case 'c': {
-            DiveClient *c = new DiveClient();
-            c->init();
-            delete c;
-            break;
-        }
-        case 's': {
-            std::cerr << "server not supported" << std::endl; break;
-        }
-        default:
-            printHelp();
-            break;
-    }
+int main(int argc, char* argv[])
+{
+    DiveClient c;
+    c.init();
 
     return 0;
 }

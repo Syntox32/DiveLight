@@ -47,7 +47,7 @@ set(WSCLIENT_SOURCE
 
 
 set(EXECUTABLE_NAME "DiveLight")
-set(SOURCE_FILES src/main.cpp include/config.hpp src/client.cpp include/client.hpp src/server.cpp include/server.hpp src/stream.cpp include/stream.hpp src/fft.cpp include/fft.hpp include/utils.hpp src/renderer.cpp include/renderer.hpp src/columnrenderer.cpp include/columnrenderer.hpp src/visualizer.cpp include/visualizer.hpp src/input.cpp include/input.hpp src/ledclient.cpp include/ledclient.hpp)
+set(SOURCE_FILES src/main.cpp include/config.hpp src/client.cpp include/client.hpp include/server.hpp src/stream.cpp include/stream.hpp src/fft.cpp include/fft.hpp include/utils.hpp src/renderer.cpp include/renderer.hpp src/columnrenderer.cpp include/columnrenderer.hpp src/visualizer.cpp include/visualizer.hpp src/input.cpp include/input.hpp src/ledclient.cpp include/ledclient.hpp)
 # add sources from directory and from external directories
 add_executable(${EXECUTABLE_NAME} ${SOURCE_FILES} ${KISSFFT_SOURCE} ${WSCLIENT_SOURCE})
 
