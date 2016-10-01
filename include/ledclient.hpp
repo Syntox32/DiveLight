@@ -18,6 +18,7 @@
 #include <SFML/System.hpp>
 #include "easywsclient.hpp"
 #include "utils.hpp"
+#include "config.hpp"
 
 using easywsclient::WebSocket;
 
@@ -31,7 +32,7 @@ struct LED
 class LEDClient
 {
 public:
-    LEDClient(unsigned int fps, std::mutex& lock);
+    LEDClient(Config& config, std::mutex& lock);
     ~LEDClient();
 
     void setData(std::vector<LED> leds);
@@ -43,6 +44,7 @@ public:
 private:
     WebSocket *m_ws;
     std::string m_ledData;
+    Config &m_config;
 
     bool startWsa();
 };

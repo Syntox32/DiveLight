@@ -19,9 +19,9 @@
 #include  <kiss_fft.h>
 #include "stream.hpp"
 #include "renderer.hpp"
-#include "columnrenderer.hpp"
 #include "easywsclient.hpp"
 #include "ledclient.hpp"
+#include "boxspectrum.hpp"
 
 #include <locale>
 #include <codecvt>
@@ -40,11 +40,13 @@ class DiveClient
 {
 public:
     DiveClient();
+    ~DiveClient();
     void init();
 
 private:
     void step(unsigned int sampleSize, unsigned int currentSample);
 
+    Config      m_config;
     LEDClient  *m_ledClient;
     SoundInput *m_soundInput;
     DiveFFT    *m_fft;
@@ -52,8 +54,9 @@ private:
     kiss_fft_cpx    *m_dataOut;
     float       *m_ampBuff;
     float       *m_magBuff;
+    float       *m_rawData;
     unsigned int m_magBuffLen;
-    ColumnRenderer* m_renderer;
+    Renderer* m_renderer;
     std::mutex m_lock;
 };
 

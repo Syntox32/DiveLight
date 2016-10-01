@@ -9,6 +9,8 @@
 #include <mutex>
 #include <climits>
 
+#include <experimental/filesystem>
+
 enum InputFormat : int
 {
     File = 0,
@@ -23,7 +25,7 @@ public:
     SoundInput(DataCallback& dataCallback);
     ~SoundInput();
 
-    void setFile(const std::string& path, unsigned int fftInputSize = FFTSize::FFT2048);
+    void setFile(const std::string& path, FFTSize fftInputSize = FFTSize::FFT2048);
     void setLoopback();
     void begin();
     void stop();
@@ -38,7 +40,7 @@ private:
     InputFormat   m_format;
     bool          b_running;
     bool          b_hasCallback;
-    size_t        m_fftSize;
+    FFTSize       m_fftSize;
     std::thread   m_streamThread;
     std::mutex    m_streamLock;
     DataCallback& f_eventCallback;

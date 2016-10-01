@@ -9,7 +9,7 @@ SoundInput::SoundInput(DataCallback& dataCallback)
 
 SoundInput::~SoundInput() { }
 
-void SoundInput::setFile(const std::string& path, unsigned int fftInputSize)
+void SoundInput::setFile(const std::string& path, FFTSize fftInputSize)
 {
     m_stream = new DiveStream();
     m_format = InputFormat::File;
@@ -35,7 +35,7 @@ void SoundInput::setFile(const std::string& path, unsigned int fftInputSize)
         exit(1);
     }
 
-    m_stream->load(soundBuffer, channelCount * fftInputSize, f_eventCallback);
+    m_stream->load(soundBuffer, channelCount * (unsigned int)fftInputSize, f_eventCallback);
 }
 
 const std::vector<Sample>& SoundInput::getSampleData()
@@ -48,6 +48,8 @@ const std::vector<Sample>& SoundInput::getSampleData()
                 const size_t currentSample = m_stream->currentSample();
                 size_t currentSampleCount = m_stream->currentSampleCount();
                 unsigned int channelCount = m_stream->getChannelCount();
+
+                // TODO: Fix indexOutOfRange when the song eventually comes to an end.
 
                 m_samples.clear();
 
@@ -80,8 +82,8 @@ const std::vector<Sample>& SoundInput::getSampleData()
                 }
 
                 // do some zero padding
-                size_t remainder = m_fftSize - (currentSampleCount / channelCount);
-                for (size_t j = (currentSampleCount / channelCount); j < m_fftSize; j++) {
+                size_t remainder = (unsigned int)m_fftSize - (currentSampleCount / channelCount);
+                for (size_t j = (currentSampleCount / channelCount); j < (unsigned int)m_fftSize; j++) {
                     m_samples.push_back(0.0f);
                 }
             }
@@ -129,10 +131,10 @@ void SoundInput::stop()
     }
 }
 
-std::string SoundInput::prepareTrack(const std::string& path)
+std::string SoundInput::prepareTrack(const std::string& filePath)
 {
     // TODO: use boost of some other filesystem library
-    std::string resPath = path;
+    std::string resPath = filePath;
     if (Utils::stringContains(resPath, "\""))
     {
         resPath.erase(
@@ -141,8 +143,14 @@ std::string SoundInput::prepareTrack(const std::string& path)
         );
     }
 
+    // TODO: Experiment with the c++ standard library experimental filesystem
+    //using namespace std::experimental::filesystem;
+    //onst char* a = filePath.c_str();
+    //path file_path<const char*>(a);
+    //file_path.
+
     // Convert the file to .wav using ffmpeg, if it's an mp3.
-    if (Utils::stringContains(path, ".mp3"))
+    if (Utils::stringContains(filePath, ".mp3"))
     {
         std::string cmd = "ffmpeg -y -i \"" + resPath + "\" \"" + resPath+ ".wav\"";
         system(cmd.c_str()); // TODO: fix getting unicode error with this one

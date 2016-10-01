@@ -16,6 +16,7 @@ public:
     ~DiveFFT();
 
     void setData(kiss_fft_scalar* in, kiss_fft_cpx* out, unsigned int inLen);
+    void changeFFTSize(unsigned int newSize);
     void doFFT();
     inline unsigned int getFFTSize() const { return (unsigned int)m_size; }
     unsigned int getOutDataCount();

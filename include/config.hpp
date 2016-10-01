@@ -45,7 +45,7 @@ enum FFTSize : unsigned int {
 };
 
 
-class Config {
+struct Config {
     ScalingMethod scalingMethod;
     FreqLimitMethod freqLimitMethod;
     WindowFunction windowFunction;
@@ -59,6 +59,7 @@ class Config {
     bool beatDetectionEnabled;
     bool ledStripEnabled;
     bool linearInterpEnabled;
+    bool applySqrtPostFFT;
 
     unsigned int columnCount;
     unsigned int sampleIndexShift;
@@ -84,6 +85,7 @@ class Config {
         beatDetectionEnabled(false),
         ledStripEnabled(true),
         linearInterpEnabled(false),
+        applySqrtPostFFT(true),
 
         columnCount(30),
         sampleIndexShift(0),

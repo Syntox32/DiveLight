@@ -7,6 +7,12 @@ DiveFFT::DiveFFT(unsigned int fftSize)
     m_cfg = kiss_fftr_alloc((unsigned int)fftSize, 0, 0, 0);
 }
 
+void DiveFFT::changeFFTSize(unsigned int newSize)
+{
+    m_cfg = kiss_fftr_alloc((unsigned int)newSize, 0, 0, 0);
+    m_size = newSize;
+}
+
 void DiveFFT::setData(kiss_fft_scalar* in, kiss_fft_cpx* out, unsigned int inLen)
 {
     m_inData  = in;

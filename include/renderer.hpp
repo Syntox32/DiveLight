@@ -11,18 +11,48 @@
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 
-class IRenderer {
-public:
-    IRenderer(std::mutex& lock);
+#include "config.hpp"
+#include "ledclient.hpp"
+#include "visualizer.hpp"
+#include "menu.hpp"
+#include "input.hpp"
+#include "fft.hpp"
+#include "boxspectrum.hpp"
 
-    virtual void setData() = 0;
-    virtual void render();
+class BoxSpectrum;
+
+class Renderer {
+
+public:
+    Renderer(Config& clientConfig, SoundInput *stream, DiveFFT *fft, std::mutex& lock);
+
+    void render();
+    void begin();
     void loop();
+    void prepareData();
+
+    void setDataPointer(float *data);
+    void attachLeds(LEDClient *ledClient);
 
 protected:
-    sf::RenderWindow* m_window;
-    std::vector<sf::RectangleShape>* m_rects;
-    std::mutex& m_lock;
+    float *m_rawData;
+    float *m_ampBuff;
+    float *m_magBuff;
+    bool m_invalidateFreqs;
+
+    std::mutex &m_lock;
+    Config &m_config;
+
+    BoxSpectrum *m_box;
+    SoundInput *m_stream;
+    Visualizer *m_visualizer;
+    DiveFFT *m_fft;
+    Menu *m_menu;
+    LEDClient *m_led;
+    sf::RenderWindow  *m_window;
+
+    //
+
 };
 
 

@@ -4,7 +4,8 @@
 
 #include "../include/ledclient.hpp"
 
-LEDClient::LEDClient(unsigned int fps, std::mutex& lock)
+LEDClient::LEDClient(Config& config, std::mutex& lock)
+    : m_config(config)
 {
 
 }
@@ -34,18 +35,7 @@ void LEDClient::init()
     }
 
     if (m_ws->getReadyState() == WebSocket::OPEN)
-    {
         std::cout << "websocket opened" << std::endl;
-    }
-
-    //m_ws->send("HELLLOOOOOOOOOOOOOOOOOO");
-
-
-    //while (m_ws->getReadyState() != WebSocket::CLOSED)
-    {
-        //m_ws->poll();
-        //m_ws->dispatch(handle_message);
-    }
 }
 
 bool LEDClient::startWsa()
@@ -73,7 +63,7 @@ void stopWsa()
 
 bool LEDClient::send()
 {
-    m_ws->send(m_ledData);
+    //m_ws->send(m_ledData);
 }
 
 void LEDClient::poll()
@@ -89,9 +79,9 @@ void LEDClient::setData(float *data, unsigned int dataLen)
 void LEDClient::setData(float *data, unsigned int index, byte r, byte g, byte b)
 {
     std::ostringstream stream;
-    int count = 100;
+    int count = 60; //m_config.columnCount;
     stream << "begin:" << count << ":";
-    int height = 5* (int)Utils::map(data[index], 0, 500, 0, count);
+    int height = 5 * (int)Utils::map(data[index], 0, 500, 0, count);
     std::cout << height << std::endl;
     for (unsigned int i = 0; i < count; i++)
     {
@@ -107,6 +97,7 @@ void LEDClient::setData(float *data, unsigned int index, byte r, byte g, byte b)
 
     stream << "end";
     m_ledData = stream.str();
+    m_ws->send(m_ledData);
     int i = 2323232;
 }
 
