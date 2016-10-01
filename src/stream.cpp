@@ -1,5 +1,5 @@
 
-#include "stream.hpp"
+#include "../include/stream.hpp"
 
 void DiveStream::load(const sf::SoundBuffer& buffer, int sampleSize, DataCallback& callback)
 {

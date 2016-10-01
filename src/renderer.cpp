@@ -1,5 +1,5 @@
 
-#include "renderer.hpp"
+#include "../include/renderer.hpp"
 
 IRenderer::IRenderer(std::mutex& lock)
     : m_lock(lock)

@@ -1,5 +1,5 @@
 
-#include "fft.hpp"
+#include "../include/fft.hpp"
 
 DiveFFT::DiveFFT(FFTSize fftSize)
         : m_size(fftSize)

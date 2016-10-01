@@ -1,5 +1,5 @@
 
-#include "input.hpp"
+#include "../include/input.hpp"
 
 SoundInput::SoundInput(DataCallback& dataCallback)
     : b_running(false),
@@ -159,7 +159,7 @@ std::string SoundInput::prepareTrack(const std::string& path)
     // Convert the file to .wav using ffmpeg, if it's an mp3.
     if (Utils::stringContains(path, ".mp3"))
     {
-        std::string cmd = "ffmpeg -i \"" + resPath + "\" \"" + resPath+ ".wav\"";
+        std::string cmd = "ffmpeg -y -i \"" + resPath + "\" \"" + resPath+ ".wav\"";
         system(cmd.c_str()); // TODO: fix getting unicode error with this one
         std::cout << "Converted mp3 to wav." << std::endl;
         resPath += ".wav";

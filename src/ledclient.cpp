@@ -2,7 +2,7 @@
 // Created by Anders on 30.09.2016.
 //
 
-#include "ledclient.hpp"
+#include "../include/ledclient.hpp"
 
 LEDClient::LEDClient(unsigned int fps, std::mutex& lock)
 {

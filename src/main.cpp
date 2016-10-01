@@ -45,8 +45,8 @@
  * */
 
 #include <iostream>
-#include "client.hpp"
-#include "server.hpp"
+#include "../include/client.hpp"
+#include "../include/server.hpp"
 
 void printHelp() {
     std::cout << "Please launch as either 'dive.exe server' or 'dive.exe client'" << std::endl;

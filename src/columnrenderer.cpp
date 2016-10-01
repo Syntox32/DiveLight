@@ -1,5 +1,5 @@
 
-#include "columnrenderer.hpp"
+#include "../include/columnrenderer.hpp"
 
 ColumnRenderer::ColumnRenderer(unsigned int columnCount, std::mutex& lock)
     : IRenderer(lock), m_columnCount(columnCount), m_lock(lock), b_hasLeds(false)
