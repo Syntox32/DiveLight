@@ -9,7 +9,6 @@ ColumnRenderer::ColumnRenderer(unsigned int columnCount, std::mutex& lock)
     m_columnWidth = m_window->getSize().x / (float)m_columnCount;
 
     float columnHeight = 20.0f;
-    //sf::Vector2u winSize = m_window->getSize();
     sf::Vector2f size(m_columnWidth, columnHeight);
     sf::RectangleShape temp;
 

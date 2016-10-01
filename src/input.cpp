@@ -29,7 +29,7 @@ void SoundInput::setFile(const std::string& path, unsigned int fftInputSize)
     unsigned int channelCount = soundBuffer.getChannelCount();
 
     // TODO: Support mono sound
-    if (channelCount != 2)
+    if (channelCount > 2)
     {
         std::cerr << "error: channelCount not supported." << std::endl;
         exit(1);
@@ -44,8 +44,6 @@ const std::vector<Sample>& SoundInput::getSampleData()
     {
         case InputFormat::File:
             {
-                // std::lock_guard<std::mutex> lock(m_streamLock);
-
                 const std::vector<sf::Int16>& samples = m_stream->getSamples();
                 const size_t currentSample = m_stream->currentSample();
                 size_t currentSampleCount = m_stream->currentSampleCount();
@@ -60,14 +58,7 @@ const std::vector<Sample>& SoundInput::getSampleData()
                     for (size_t i = 0; i < currentSampleCount; i++)
                     {
                         // USHRT_MAX makes the data <1, 0], while SHRT_MAX makes it (at least in this case) <2, 0]
-
                         m_samples.push_back(((unsigned short) samples[currentSample + i]) / (float) SHRT_MAX);
-
-                        //int c = samples[currentSample + i] << 8 | samples[currentSample + i + 1];
-                        //m_intermediate[i / 2] = c / 32768.0f;
-                        //m_dataIn[i / 2] = 12313.0f; (float)samples[currentSample + i];
-                        //std::cout << std::fixed;
-                        //std::cout << m_intermediate[i / 2] << std::endl;
                     }
                 }
                 else if (channelCount == 2)
@@ -77,17 +68,10 @@ const std::vector<Sample>& SoundInput::getSampleData()
                     for (size_t i = 0; i < currentSampleCount; i += 2)
                     {
                         // USHRT_MAX makes the data <1, 0], while SHRT_MAX makes it (at least in this case) <2, 0]
-
                         m_samples.push_back((
                                       ((unsigned short) samples[currentSample + i] +
                                       (unsigned short) samples[currentSample + i + 1])
                                       / 2.0f) / (float) SHRT_MAX);
-
-                        //int c = samples[currentSample + i] << 8 | samples[currentSample + i + 1];
-                        //m_intermediate[i / 2] = c / 32768.0f;
-                        //m_dataIn[i / 2] = 12313.0f; (float)samples[currentSample + i];
-                        //std::cout << std::fixed;
-                        //std::cout << m_intermediate[i / 2] << std::endl;
                     }
                 }
                 else if (channelCount > 2)
@@ -110,7 +94,7 @@ const std::vector<Sample>& SoundInput::getSampleData()
 void SoundInput::setLoopback()
 {
     m_format = InputFormat::Loopback;
-    // Init WASAPI loopback and prepare the samples for the callback function
+    // TODO: Init WASAPI loopback and prepare the samples for the callback function
 }
 
 void SoundInput::begin()
@@ -147,6 +131,7 @@ void SoundInput::stop()
 
 std::string SoundInput::prepareTrack(const std::string& path)
 {
+    // TODO: use boost of some other filesystem library
     std::string resPath = path;
     if (Utils::stringContains(resPath, "\""))
     {
