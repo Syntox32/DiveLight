@@ -8,23 +8,16 @@
 #include "config.hpp"
 #include "kiss_fftr.h"
 
-enum FFTSize : int
-{
-    FFT512 = 512,
-    FFT1024 = 1024,
-    FFT2048 = 2048,
-    FFT4096 = 4096,
-};
 
 class DiveFFT
 {
 public:
-    DiveFFT(FFTSize fftSize = FFTSize::FFT1024);
+    DiveFFT(unsigned int fftSize);
     ~DiveFFT();
 
     void setData(kiss_fft_scalar* in, kiss_fft_cpx* out, unsigned int inLen);
     void doFFT();
-    inline int getFFTSize() const { return m_size; }
+    inline unsigned int getFFTSize() const { return (unsigned int)m_size; }
     unsigned int getOutDataCount();
 
     float windowHann();
@@ -32,7 +25,7 @@ public:
     float windowBlackman();
 
 private:
-    FFTSize          m_size;
+    unsigned int     m_size;
     kiss_fftr_cfg    m_cfg;
     kiss_fft_cpx*    m_outData;
     kiss_fft_scalar* m_inData;

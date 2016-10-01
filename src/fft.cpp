@@ -1,10 +1,10 @@
 
 #include "../include/fft.hpp"
 
-DiveFFT::DiveFFT(FFTSize fftSize)
+DiveFFT::DiveFFT(unsigned int fftSize)
         : m_size(fftSize)
 {
-    m_cfg = kiss_fftr_alloc(fftSize, 0, 0, 0);
+    m_cfg = kiss_fftr_alloc((unsigned int)fftSize, 0, 0, 0);
 }
 
 void DiveFFT::setData(kiss_fft_scalar* in, kiss_fft_cpx* out, unsigned int inLen)
@@ -21,7 +21,7 @@ void DiveFFT::doFFT()
 
 unsigned int DiveFFT::getOutDataCount()
 {
-    return (m_size / 2) + 1;
+    return ((unsigned int)m_size / 2) + 1;
 }
 
 float DiveFFT::windowHann()
