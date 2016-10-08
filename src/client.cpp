@@ -42,9 +42,12 @@ void DiveClient::init()
     //std::getline(std::cin, inPath);
 
     unsigned int fps = m_config.ledRefreshRate;
-    m_ledClient = new LEDClient(m_config, m_lock);
-    m_ledClient->init();
-    m_ledClient->send();
+    if (m_config.ledStripEnabled)
+    {
+        m_ledClient = new LEDClient(m_config, m_lock);
+        m_ledClient->init();
+        m_ledClient->send();
+    }
 
     //m_config.ledStripEnabled = false;
     DataCallback callback = std::bind(&DiveClient::step, this, _1, _2);
@@ -80,7 +83,7 @@ void DiveClient::step(unsigned int sampleSize, unsigned int currentSample)
         case WindowFunction::Blackman:
             m_fft->windowBlackman();
             break;
-        case WindowFunction::None:
+        case WindowFunction::WindowNone:
             break;
     }
 
@@ -116,7 +119,6 @@ void DiveClient::step(unsigned int sampleSize, unsigned int currentSample)
 DiveClient::~DiveClient()
 {
     // I think this is how I clean up things
-    delete m_ledClient;
     delete m_soundInput;
     delete m_fft;
     delete m_dataIn;
@@ -125,4 +127,7 @@ DiveClient::~DiveClient()
     delete m_magBuff;
     delete m_rawData;
     delete m_renderer;
+
+    if (m_config.ledStripEnabled)
+        delete m_ledClient;
 }

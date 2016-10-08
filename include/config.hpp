@@ -10,31 +10,32 @@
 #endif
 
 
-enum class ScalingMethod
+enum ScalingMethod
 {
-    Decibel,
-    Log,
-    Linear,
-    SquareRoot,
-    None
+    Decibel = 0,
+    Log = 1,
+    Linear = 2,
+    SquareRoot = 3,
+    None = 4
 };
 
-enum class FreqLimitMethod {
-    Linear,
-    Log
+enum FreqLimitMethod {
+    FreqLinear = 0,
+    FreqLog = 1,
+    LogV2 = 2
 };
 
-enum class WindowFunction {
-    Hann,
-    Hamming,
-    Blackman,
-    None
+enum WindowFunction {
+    Hann = 0,
+    Hamming = 1,
+    Blackman = 2,
+    WindowNone = 3
 };
 
-enum class ColorMode {
-    Single,
-    Gradient,
-    Custom
+enum ColorMode {
+    Single = 0,
+    Gradient = 1,
+    Custom = 2
 };
 
 enum FFTSize : unsigned int {
@@ -72,8 +73,8 @@ struct Config {
     float linearInterpConstant;
 
     Config() :
-        scalingMethod(ScalingMethod::Decibel),
-        freqLimitMethod(FreqLimitMethod::Linear),
+        scalingMethod(ScalingMethod::SquareRoot),
+        freqLimitMethod(FreqLimitMethod::FreqLog),
         windowFunction(WindowFunction::Blackman),
         colorMode(ColorMode::Single),
         fftSize(FFTSize::FFT2048),
@@ -83,14 +84,14 @@ struct Config {
         sampleShiftingEnabled(false),
         bandpassFilterEnabled(false),
         beatDetectionEnabled(false),
-        ledStripEnabled(true),
+        ledStripEnabled(false),
         linearInterpEnabled(false),
         applySqrtPostFFT(true),
 
-        columnCount(30),
+        columnCount(24),
         sampleIndexShift(0),
         historyAvgCount(20),
-        renderFrameRate(120),
+        renderFrameRate(25),
         ledRefreshRate(60),
 
         decayConstant(0.6f),
