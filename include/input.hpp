@@ -30,7 +30,7 @@ public:
     void begin();
     void stop();
 
-    const std::vector<Sample>& getSampleData();
+    const std::vector<Sample>& getSampleData(unsigned int sampleSize, unsigned int currentSample);
 
     const inline bool isRunning() const { return b_running; }
     const inline unsigned int getSampleRate() const { return m_stream->getSampleRate(); }

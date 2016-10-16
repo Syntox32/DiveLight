@@ -38,15 +38,15 @@ void SoundInput::setFile(const std::string& path, FFTSize fftInputSize)
     m_stream->load(soundBuffer, channelCount * (unsigned int)fftInputSize, f_eventCallback);
 }
 
-const std::vector<Sample>& SoundInput::getSampleData()
+const std::vector<Sample>& SoundInput::getSampleData(unsigned int sampleSize, unsigned int currentSample)
 {
     switch (m_format)
     {
         case InputFormat::File:
             {
                 const std::vector<sf::Int16>& samples = m_stream->getSamples();
-                const size_t currentSample = m_stream->currentSample();
-                size_t currentSampleCount = m_stream->currentSampleCount();
+                const size_t tCurrentSample = currentSample; //m_stream->currentSample();
+                size_t currentSampleCount = sampleSize; //m_stream->currentSampleCount();
                 unsigned int channelCount = m_stream->getChannelCount();
 
                 // TODO: Fix indexOutOfRange when the song eventually comes to an end.
@@ -60,7 +60,7 @@ const std::vector<Sample>& SoundInput::getSampleData()
                     for (size_t i = 0; i < currentSampleCount; i++)
                     {
                         // USHRT_MAX makes the data <1, 0], while SHRT_MAX makes it (at least in this case) <2, 0]
-                        m_samples.push_back(((unsigned short) samples[currentSample + i]) / (float) SHRT_MAX);
+                        m_samples.push_back(((unsigned short) samples[tCurrentSample + i]) / (float) SHRT_MAX);
                     }
                 }
                 else if (channelCount == 2)
@@ -71,8 +71,8 @@ const std::vector<Sample>& SoundInput::getSampleData()
                     {
                         // USHRT_MAX makes the data <1, 0], while SHRT_MAX makes it (at least in this case) <2, 0]
                         m_samples.push_back((
-                                      ((unsigned short) samples[currentSample + i] +
-                                      (unsigned short) samples[currentSample + i + 1])
+                                      ((unsigned short) samples[tCurrentSample + i] +
+                                      (unsigned short) samples[tCurrentSample + i + 1])
                                       / 2.0f) / (float) SHRT_MAX);
                     }
                 }

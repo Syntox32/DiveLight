@@ -38,14 +38,15 @@ void DiveClient::init()
     //std::string inPath = "\"D:\\Library\\Music\\Ghost'n'Ghost - Lighthouse [Royalty Free Music]-xVzeZGRZk0s.mp3\"";
     //std::string inPath = "\"D:\\Library\\Music\\Jaymes Young - Dark Star Milkman Remix.mp3\"";
     //std::string inPath = "\"D:\\Library\\Music\\Agressor Bunx - Call Me Back.mp3\"";
+    std::string inPath = "\"C:\\Users\\Anders\\.CLion2016.2\\system\\cmake\\generated\\DiveLight-32adff54\\32adff54\\Debug\\bin\\Blur - Song 2 (San Holo Remix)-APWK0JLWjTg.mp3\"";
 #elif __linux__
     //std::string inPath = "/home/syn/Dropbox/Dev/Alarm/music/higher-love.wav-edit.wav";
     std::string inPath = "/home/syn/Dropbox/Freestylers - Cracks ft Belle Humble Flux Pavilion Remix HQ Full Extended Mix.wav";
 #endif
 
-    std::string inPath;
+    //std::string inPath;
     std::cout << "Audio path: \n";
-    std::getline(std::cin, inPath);
+    //std::getline(std::cin, inPath);
 
     unsigned int fps = m_config.ledRefreshRate;
     if (m_config.ledStripEnabled)
@@ -78,7 +79,7 @@ void DiveClient::init()
 void DiveClient::step(unsigned int sampleSize, unsigned int currentSample)
 {
     // TODO: Handle edge cases with lower samples sizes
-    const std::vector<Sample>& samples = m_soundInput->getSampleData();
+    const std::vector<Sample>& samples = m_soundInput->getSampleData(sampleSize, currentSample);
     for (std::size_t i = 0; i < samples.size(); i++)
     {
         m_dataIn[i] = (float) samples[i];
