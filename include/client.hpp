@@ -22,6 +22,7 @@
 #include "easywsclient.hpp"
 #include "ledclient.hpp"
 #include "boxspectrum.hpp"
+#include "beatdetection.hpp"
 
 #include <locale>
 #include <codecvt>
@@ -48,6 +49,7 @@ private:
 
     Config      m_config;
     LEDClient  *m_ledClient;
+    BeatDetection *m_beatDetect;
     SoundInput *m_soundInput;
     DiveFFT    *m_fft;
     kiss_fft_scalar *m_dataIn;

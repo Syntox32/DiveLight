@@ -34,22 +34,37 @@
  */
 
 #include "config.hpp"
+#include "utils.hpp"
 #include "input.hpp"
+#include "fft.hpp"
 
 class Visualizer {
 public:
-    Visualizer(Config& config, SoundInput *stream);
+    Visualizer(Config& config, SoundInput *stream, DiveFFT *fft);
 
     void applyPostFFTScaling(float *inRaw,
                              unsigned int inLen,
                              float *outMag,
                              float *outAmp);
 
+    //
+    // This is taken from a wonderful article about FFT averages.
+    // http://code.compartmental.net/2007/03/21/fft-averages/
+    //
+    int freqToIndex(int freq);
+    int indexToFreq(int index);
 
+    int getAverages(float *in, int len, float *out, int minFreq, int maxFreq);
 
 private:
     Config &m_config;
     SoundInput *m_stream;
+    DiveFFT *m_fft;
+
+    int m_minFreq;
+    int m_maxFreq;
+
+    float getBandWidth();
 };
 
 

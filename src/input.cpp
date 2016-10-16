@@ -131,17 +131,46 @@ void SoundInput::stop()
     }
 }
 
+// http://stackoverflow.com/a/478960
+std::string exec(const char* cmd) {
+    char buffer[128];
+    std::string result = "";
+    std::shared_ptr<FILE> pipe(popen(cmd, "r"), pclose);
+    if (!pipe) throw std::runtime_error("popen() failed!");
+    while (!feof(pipe.get())) {
+        if (fgets(buffer, 128, pipe.get()) != NULL)
+            result += buffer;
+    }
+    return result;
+}
+
 std::string SoundInput::prepareTrack(const std::string& filePath)
 {
     // TODO: use boost of some other filesystem library
     std::string resPath = filePath;
-    if (Utils::stringContains(resPath, "\""))
-    {
+    bool force = false;
+
+    if (Utils::stringContains(resPath, "u:")) {
+        std::string url = resPath.substr(2, resPath.length());
+
+        std::string cmdFilename = "youtube-dl --audio-format mp3 -x --no-playlist --get-filename " + url;
+        std::string linkFilename = exec(cmdFilename.c_str());
+        //system(cmdFilename.c_str());
+
+        std::string cmd = "youtube-dl --audio-format mp3 -x --no-playlist " + url;
+        std::string ret = exec(cmd.c_str());
+
+        std::cout << "Downloaded mp3." << std::endl;
+        resPath = linkFilename;
+        force = true;
+
+    } else if (Utils::stringContains(resPath, "\"")) {
         resPath.erase(
                 std::remove(resPath.begin(), resPath.end(), '\"'),
                 resPath.end()
         );
     }
+
 
     // TODO: Experiment with the c++ standard library experimental filesystem
     //using namespace std::experimental::filesystem;
@@ -150,7 +179,7 @@ std::string SoundInput::prepareTrack(const std::string& filePath)
     //file_path.
 
     // Convert the file to .wav using ffmpeg, if it's an mp3.
-    if (Utils::stringContains(filePath, ".mp3"))
+    if (Utils::stringContains(resPath, ".mp3") || force)
     {
         std::string cmd = "ffmpeg -y -i \"" + resPath + "\" \"" + resPath+ ".wav\"";
         system(cmd.c_str()); // TODO: fix getting unicode error with this one

@@ -32,21 +32,31 @@ void DiveClient::init()
     using namespace std::placeholders;
 
 #ifdef _WIN32
-   //std::string inPath = "\"D:\\Library\\Music\\Soundcloud\\Ambient\\Trentemoller - Miss You - Copy.wav\"";
-    std::string inPath = "\"D:\\Library\\Music\\Freestylers - Cracks Ft Belle Humble Flux Pavilion Remix.mp3\"";
+    //std::string inPath = "\"D:\\Library\\Music\\Soundcloud\\Ambient\\Trentemoller - Miss You - Copy.wav\"";
+    //std::string inPath = "\"D:\\Library\\Music\\Freestylers - Cracks Ft Belle Humble Flux Pavilion Remix.mp3\"";
+    //std::string inPath = "\"D:\\Library\\Dropbox\\Feint - The Journey ft Veela.mp3\"";
+    //std::string inPath = "\"D:\\Library\\Music\\Ghost'n'Ghost - Lighthouse [Royalty Free Music]-xVzeZGRZk0s.mp3\"";
+    //std::string inPath = "\"D:\\Library\\Music\\Jaymes Young - Dark Star Milkman Remix.mp3\"";
+    //std::string inPath = "\"D:\\Library\\Music\\Agressor Bunx - Call Me Back.mp3\"";
 #elif __linux__
-    std::string inPath = "/home/syn/Dropbox/Dev/Alarm/music/higher-love.wav-edit.wav";
+    //std::string inPath = "/home/syn/Dropbox/Dev/Alarm/music/higher-love.wav-edit.wav";
+    std::string inPath = "/home/syn/Dropbox/Freestylers - Cracks ft Belle Humble Flux Pavilion Remix HQ Full Extended Mix.wav";
 #endif
 
+    std::string inPath;
     std::cout << "Audio path: \n";
-    //std::getline(std::cin, inPath);
+    std::getline(std::cin, inPath);
 
     unsigned int fps = m_config.ledRefreshRate;
     if (m_config.ledStripEnabled)
     {
         m_ledClient = new LEDClient(m_config, m_lock);
         m_ledClient->init();
-        m_ledClient->send();
+        //m_ledClient->send();
+    }
+
+    if (m_config.enableBeatDetect) {
+        m_beatDetect = new BeatDetection(m_config);
     }
 
     //m_config.ledStripEnabled = false;
@@ -58,6 +68,8 @@ void DiveClient::init()
 
     m_renderer = new Renderer(m_config, m_soundInput, m_fft, m_lock);
     m_renderer->attachLeds(m_ledClient);
+    m_renderer->attachBeatDetect(m_beatDetect);
+
     m_renderer->setDataPointer(m_rawData);
 
     m_renderer->begin();

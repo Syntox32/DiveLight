@@ -12,18 +12,20 @@ class BoxSpectrum
 {
 public:
     BoxSpectrum(unsigned int columnCount, sf::Vector2u winSize, std::mutex& lock);
-    void prepareData(float *inData, unsigned int inLen, Visualizer *vz);
+    void prepareData(float *inData, unsigned int inLen, Visualizer *vz, Config& config);
     void render(sf::RenderTarget *target);
 
+    /*
     void setFreqLimits(unsigned int minFreq,
                         unsigned int maxFreq,
-                        unsigned int sampleRate,
-                        unsigned int fftSize);
+                        Visualizer *vz);
+    */
 
 private:
     unsigned int m_columnCount;
     float        m_columnWidth;
     float*       m_dataPointer;
+    float       *m_averages;
     std::mutex& m_lock;
     std::size_t m_dataLen;
     sf::Vector2u m_winSize;

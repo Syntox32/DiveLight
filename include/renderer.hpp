@@ -18,6 +18,7 @@
 #include "input.hpp"
 #include "fft.hpp"
 #include "boxspectrum.hpp"
+#include "beatdetection.hpp"
 
 class BoxSpectrum;
 
@@ -33,6 +34,7 @@ public:
 
     void setDataPointer(float *data);
     void attachLeds(LEDClient *ledClient);
+    void attachBeatDetect(BeatDetection *beatDetect);
 
 protected:
     float *m_rawData;
@@ -44,15 +46,13 @@ protected:
     Config &m_config;
 
     BoxSpectrum *m_box;
+    BeatDetection *m_beatDetect;
     SoundInput *m_stream;
     Visualizer *m_visualizer;
     DiveFFT *m_fft;
     Menu *m_menu;
     LEDClient *m_led;
     sf::RenderWindow  *m_window;
-
-    //
-
 };
 
 

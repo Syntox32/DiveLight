@@ -12,19 +12,19 @@ Renderer::Renderer(Config& clientConfig,
 {
     m_window = new sf::RenderWindow(sf::VideoMode(1280, 720), "rendererrr", sf::Style::Default);
     m_window->setFramerateLimit(clientConfig.renderFrameRate);
-    // m_rects = new std::vector<sf::RectangleShape>();
 
     m_menu = new Menu(clientConfig);
-    m_visualizer = new Visualizer(clientConfig, stream);
+
+    m_visualizer = new Visualizer(clientConfig, stream, fft);
     m_fft = fft;
 
     // init buffers
-    m_rawData = new float[m_fft->getOutDataCount()]; // this gotta be thread safe
+    m_rawData = new float[m_fft->getOutDataCount()];
     m_magBuff = new float[m_fft->getOutDataCount()];
     m_ampBuff = new float[m_fft->getOutDataCount()];
 
     m_box = new BoxSpectrum(clientConfig.columnCount, m_window->getSize(), lock);
-    m_box->setFreqLimits(40, 4000, stream->getSampleRate(), fft->getFFTSize());
+    //m_box->setFreqLimits(40, 4000, m_visualizer);
 }
 
 void Renderer::begin()
@@ -67,10 +67,38 @@ void Renderer::attachLeds(LEDClient *ledClient)
     }
 }
 
+void Renderer::attachBeatDetect(BeatDetection *beatDetect)
+{
+    if (m_config.enableBeatDetect)
+    {
+        m_beatDetect = beatDetect;
+        m_beatDetect->configure(m_ampBuff, m_config.columnCount, m_visualizer);
+        std::cout << "attached BeatDetection class..." << std::endl;
+
+        Beat* b = new Beat(m_config.historyAvgCount, 0, 1.08f, "main");
+        m_beatDetect->setMainBeat(b);
+
+        m_beatDetect->addBeatChannel(0, 1.05f);
+        m_beatDetect->addBeatChannel(1, 1.1f);
+        for (int i = 2; i < m_config.columnCount; i++) {
+            m_beatDetect->addBeatChannel(i, 1.15f);
+        }
+    }
+}
+
 void Renderer::prepareData()
 {
-    m_box->prepareData(m_ampBuff, m_fft->getOutDataCount(), m_visualizer);
-    m_led->setData(m_ampBuff, 40, 255, 0, 0);
+    m_box->prepareData(m_ampBuff, m_fft->getOutDataCount(), m_visualizer, m_config);
+    m_beatDetect->detect();
+
+    float avgData[m_config.columnCount];
+    m_visualizer->getAverages(m_ampBuff, m_config.columnCount, avgData, m_config.freqLow, m_config.freqHigh);
+
+    if (m_config.ledStripEnabled)
+    {
+        m_led->setData(avgData, m_config.columnCount, m_beatDetect->getBeats());
+        m_led->prepare();
+    }
 }
 
 void Renderer::render()
@@ -83,11 +111,16 @@ void Renderer::render()
 
     m_box->render(m_window);
     m_menu->render(m_window);
-    m_led->send();
+    m_beatDetect->render(m_window);
+
+    if (m_config.ledStripEnabled) {
+        m_led->send();
+        m_led->poll();
+    }
     //m_led->render(); // TODO: Implement render function in LED class
 
     m_window->display();
 
-    if (m_config.ledStripEnabled)
-        m_led->poll();
+    //if (m_config.ledStripEnabled)
+
 }

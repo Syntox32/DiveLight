@@ -10,8 +10,7 @@
 #endif
 
 
-enum ScalingMethod
-{
+enum ScalingMethod {
     Decibel = 0,
     Log = 1,
     Linear = 2,
@@ -53,6 +52,7 @@ struct Config {
     ColorMode colorMode;
     FFTSize fftSize;
 
+    bool simpleAverage;
     bool decayEnabled;
     bool historyAverageEnabled;
     bool sampleShiftingEnabled;
@@ -61,42 +61,59 @@ struct Config {
     bool ledStripEnabled;
     bool linearInterpEnabled;
     bool applySqrtPostFFT;
+    bool enableBeatDetect;
 
-    unsigned int columnCount;
+    int columnCount;
     unsigned int sampleIndexShift;
     unsigned int historyAvgCount;
     unsigned int renderFrameRate;
     unsigned int ledRefreshRate;
+    int freqLow;
+    int freqHigh;
 
     float decayConstant;
     float linearScalingConstant;
     float linearInterpConstant;
+    float lerpConstant;
+    float moveDelta;
+
+    float freqLogPower;
+    float freqLogCount;
 
     Config() :
         scalingMethod(ScalingMethod::SquareRoot),
         freqLimitMethod(FreqLimitMethod::FreqLog),
         windowFunction(WindowFunction::Blackman),
         colorMode(ColorMode::Single),
-        fftSize(FFTSize::FFT2048),
+        fftSize(FFTSize::FFT4096),
 
+        simpleAverage(false),
         decayEnabled(true),
         historyAverageEnabled(true),
         sampleShiftingEnabled(false),
         bandpassFilterEnabled(false),
         beatDetectionEnabled(false),
-        ledStripEnabled(false),
+        ledStripEnabled(true),
         linearInterpEnabled(false),
-        applySqrtPostFFT(true),
+        applySqrtPostFFT(false),
+        enableBeatDetect(true),
 
-        columnCount(24),
+        columnCount(12),
         sampleIndexShift(0),
-        historyAvgCount(20),
-        renderFrameRate(25),
+        historyAvgCount(50),
+        renderFrameRate(60),
         ledRefreshRate(60),
 
-        decayConstant(0.6f),
-        linearScalingConstant(5.0f),
-        linearInterpConstant(0.6f)
+        freqLow(80),
+        freqHigh(4000),
+
+        decayConstant(0.3f),
+        linearScalingConstant(0.5f),
+        linearInterpConstant(0.6f),
+        freqLogCount(12.0f),
+        freqLogPower(2.0f),
+        lerpConstant(0.7f),
+        moveDelta(4.0f)
     { }
 };
 
