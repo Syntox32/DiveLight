@@ -1,11 +1,19 @@
 
+#include <SFML/Window/Keyboard.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
 #include "../include/input.hpp"
 
 SoundInput::SoundInput(DataCallback& dataCallback)
     : b_running(false),
       b_hasCallback(true),
-      f_eventCallback(dataCallback)
-{ }
+      f_eventCallback(dataCallback),
+      canTogglePause(true),
+      invalidateProgressShape(true),
+      canBackward(true),
+      canForward(true)
+{
+
+}
 
 SoundInput::~SoundInput() { }
 
@@ -20,6 +28,8 @@ void SoundInput::setFile(const std::string& path, FFTSize fftInputSize)
     // Load the file into the stream and play it.
     sf::SoundBuffer soundBuffer;
     soundBuffer.loadFromFile(newPath);
+
+    trackDuration = soundBuffer.getDuration();
 
     std::cout << soundBuffer.getChannelCount() << std::endl;
     std::cout << soundBuffer.getDuration().asSeconds() << std::endl;
@@ -118,6 +128,65 @@ void SoundInput::beginFileStream()
 
     while (m_stream->getStatus() == DiveStream::Playing)
         sf::sleep(sf::seconds(0.1f));
+}
+
+void SoundInput::render(sf::RenderTarget *target)
+{
+    target->draw(*backdrop);
+    target->draw(*progress);
+}
+
+void SoundInput::update(sf::RenderWindow *window)
+{
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
+    {
+        sf::Time offset = m_stream->getPlayingOffset();
+        m_stream->setPlayingOffset(offset - sf::seconds(1));
+        canBackward = false;
+    } else {
+        canBackward = true;
+    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
+    {
+        sf::Time offset = m_stream->getPlayingOffset();
+        m_stream->setPlayingOffset(offset + sf::seconds(1));
+        canForward = false;
+    } else {
+        canForward = true;
+    }
+
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space)) {
+        if (m_stream->getStatus() == DiveStream::Playing && canTogglePause)
+        {
+            m_stream->pause();
+            canTogglePause = false;
+        }
+
+        if (m_stream->getStatus() == DiveStream::Paused && canTogglePause) {
+            m_stream->play();
+            canTogglePause = false;
+        }
+    } else {
+        canTogglePause = true;
+    }
+
+    if (invalidateProgressShape) {
+        progress = new sf::RectangleShape(sf::Vector2f(0, 20));
+        progress->setPosition(sf::Vector2f(0, 0)); //window->getSize().y - progress->getSize().y));
+        progress->setFillColor(sf::Color(75, 105, 130));
+
+        backdrop = new sf::RectangleShape(sf::Vector2f(window->getSize().x, 20));
+        backdrop->setPosition(sf::Vector2f(0, 0)); //window->getSize().y - backdrop->getSize().y));
+        backdrop->setFillColor(sf::Color(80, 80, 80));
+
+        invalidateProgressShape = false;
+    }
+
+    float offset = m_stream->getPlayingOffset().asMicroseconds();
+    float durr = trackDuration.asMicroseconds();
+    float norm = Utils::norm(offset, 0, durr);
+
+    progress->setSize(sf::Vector2f(window->getSize().y * norm, progress->getSize().y));
 }
 
 void SoundInput::stop()

@@ -49,6 +49,7 @@ void Renderer::loop()
             m_menu->poll(event);
         }
 
+        m_stream->update(m_window);
         render();
     }
 }
@@ -112,6 +113,7 @@ void Renderer::render()
     m_box->render(m_window);
     m_menu->render(m_window);
     m_beatDetect->render(m_window);
+    m_stream->render(m_window);
 
     if (m_config.ledStripEnabled) {
         m_led->send();

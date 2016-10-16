@@ -8,8 +8,8 @@
 #include <thread>
 #include <mutex>
 #include <climits>
-
 #include <experimental/filesystem>
+#include <SFML/Graphics.hpp>
 
 enum InputFormat : int
 {
@@ -35,7 +35,18 @@ public:
     const inline bool isRunning() const { return b_running; }
     const inline unsigned int getSampleRate() const { return m_stream->getSampleRate(); }
 
+    void render(sf::RenderTarget *target);
+    void update(sf::RenderWindow *window);
+
 private:
+    bool canTogglePause;
+    bool canForward;
+    bool canBackward;
+    bool invalidateProgressShape;
+    sf::RectangleShape *progress;
+    sf::RectangleShape *backdrop;
+    sf::Time trackDuration;
+
     DiveStream*   m_stream;
     InputFormat   m_format;
     bool          b_running;
